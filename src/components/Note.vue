@@ -1,11 +1,11 @@
 <template>
-<div class="">
+<div>
     <div v-if="note" class="uk-card uk-card-default uk-card-body roundEdge">
         <h1 class="uk-card-title">
             {{ note.id ? 'Edit' : 'New' }} Note
         </h1>
 
-        <custom-input :value.sync="note.title" placeholder="Title *" />
+        <custom-input :value.sync="note.title" placeholder="Title *" ref="title" />
 
         <div class="spacer"></div>
 
@@ -13,7 +13,11 @@
 
         <div class="spacer"></div>
 
-        <custom-input :value.sync="note.tags" placeholder="Tags" />
+        <custom-input :value.sync="newTag" placeholder="New Tag" append-icon="plus" @append-icon-click="addTag" />
+        <span v-for="(tag, index) in note.tags" :key="`${tag}${index}`" class="uk-badge">
+            {{tag}} <span class="uk-icon clickable" uk-icon="icon: close; ratio: 0.8" @click="deleteTag(index)" />
+        </span>
+
         <div class="WhatIsThis" uk-tooltip="Include comma-deliminated key words to search for on the main page in order to make finding notes easier">
             What Is this?
         </div>
@@ -22,11 +26,27 @@
         <div class="spacer"></div>
 
         <div class="row fullWidth noMargin around-xs">
-            <custom-button class="col-xs-10 col-md-3" colour="primary" label="Save" :click="saveAction" />
+            <custom-button
+                class="col-xs-10 col-md-3"
+                colour="primary"
+                label="Save"
+                :click="saveAction"
+            />
 
-            <custom-button class="col-xs-10 col-md-3" colour="secondary" label="Cancel" :click="goBack" />
+            <custom-button
+                class="col-xs-10 col-md-3"
+                colour="secondary"
+                label="Cancel"
+                :click="cancel"
+            />
 
-            <custom-button class="col-xs-10 col-md-3" colour="danger" label="Delete" :click="deleteAction" :disabled="!note.id" />
+            <custom-button
+                class="col-xs-10 col-md-3"
+                colour="danger"
+                label="Delete"
+                :click="deleteAction"
+                :disabled="!note.id"
+            />
         </div>
     </div>
 </div>
@@ -47,8 +67,10 @@ export default {
                 id: 0,
                 title: null,
                 body: null,
-                tags: ''
-            }
+                tags: []
+            },
+
+            newTag: null
         }
     },
 
@@ -61,9 +83,13 @@ export default {
              * and improves reliablity that it's up to date with the backend
         */
         note() {
-            // Todo: This is a pointer so will save changes even if you cancel
-            if (this.notes !== null)
-                return this.notes.find(note => note.id == this.id) || this.emptyNote
+            // Wait until the notes have been fetched
+            if (this.notes !== null) {
+                let note = this.notes.find(note => note.id == this.id) || this.emptyNote
+
+                // Provide a clone of the object so the changes won't be saved if the user cancels
+                return {...note}
+            }
             return null
         },
 
@@ -78,22 +104,26 @@ export default {
             if (this.note.title) {
                 const res = await Swal.fire({
                     title: 'Are you ready to<br>save your changes?',
-                    // text: 'You will not be able to recover it!',
                     icon: 'question',
                     position: 'top',
                     showCancelButton: true,
                     confirmButtonText: 'Yes, save!',
-                    // confirmButtonColor: '#f0506e',
                     cancelButtonText: 'Not yet',
                     cancelButtonColor: '#080808'
                 })
 
+                // res.value indicates the user hit the confirmButton
                 if (res.value) {
                     this.saveNote(this.note)
-                    this.goBack()
+                    this.$router.back()
                 }
             } else {
-                alert("Please include a title")
+                window.UIkit.notification({
+                    message: 'Please include a note title',
+                    status: 'danger'
+                })
+
+                this.$refs.title.errorMessage = 'Please include a note title'
             }
         },
 
@@ -112,16 +142,41 @@ export default {
 
             if (res.value) {
                 this.deleteNote(this.note)
-                this.goBack()
+                this.$router.back()
             }
         },
 
-        goBack() {
-            this.$router.back()
+        async cancel() {
+            const res = await Swal.fire({
+                title: 'Are you sure you want<br>to discard any changes?',
+                text: 'You will not be able to recover them!',
+                icon: 'question',
+                position: 'top',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, go back!',
+                cancelButtonText: 'Not yet',
+                cancelButtonColor: '#080808'
+            })
+
+            if (res.value) {
+                this.$router.back()
+            }
+        },
+
+        addTag() {
+            // Add the new tag and clear the input
+            this.note.tags.push(this.newTag)
+            this.newTag = null
+        },
+        deleteTag(index) {
+            this.note.tags.splice(index, 1)
+
+            // Hack to get tags list to update
+            this.$forceUpdate()
         },
 
         ...mapActions(['saveNote', 'deleteNote'])
-    },
+    }
 }
 </script>
 
@@ -136,16 +191,23 @@ export default {
         margin: auto;
     }
 
+    .uk-button {
+        margin: 5px auto;
+    }
+
     .WhatIsThis {
         font-size: 12px;
-        margin-left: 5px;
+        margin: 10px 0px 0px 5px;
 
         text-decoration: underline;
     }
 
-    .uk-button {
-        margin: 5px auto;
+    .uk-badge {
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin: 5px 5px 0px 0px;
+    }
+    .uk-badge .uk-icon {
+        margin-left: 5px;
     }
 </style>
-
-<!-- [{"id":1597881217885,"title":"My first Note","body":"This is my first note ever","tags":"test"},{"id":1597881969132,"title":"My Second Note","body":"This is a change!\n This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis\nThis note should be a little longer to try to show the elipsis","tags":""},{"id":1597883258064,"title":"My Third Note","body":"This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis","tags":"work"},{"id":1597883272716,"title":"My Fourth Note","body":"This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis","tags":"test, work"},{"id":1597895984721,"title":"My Fifth Note","body":"This one will include mult word tags","tags":"multi word, tag"}] -->

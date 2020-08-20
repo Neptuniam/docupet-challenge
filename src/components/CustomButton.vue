@@ -1,7 +1,7 @@
 <template>
-    <button :class="`uk-button uk-button-${colour} roundEdge ripple`" @click="click" :disabled="disabled">
-        {{ label }}
-    </button>
+<button :class="`uk-button uk-button-${colour} roundEdge ripple`" @click="click" :disabled="disabled">
+    {{ label }}
+</button>
 </template>
 
 <script>

@@ -38,9 +38,14 @@ export default new Vuex.Store({
 
             // If the id has not been set, now that the user is saving the note,
             // generate a unique id for the note (generally this would be done by the database for us)
-            if (payload.id == 0) {
+            if (payload.id === 0) {
                 payload.id = new Date().getTime()
                 notes.push(payload)
+            } else {
+                // Overwrite the current note with the new changes
+                let index = notes.findIndex(note => note.id === payload.id)
+                notes[index] = payload
+                console.log(notes[index]);
             }
 
             commit('setNotes', notes)

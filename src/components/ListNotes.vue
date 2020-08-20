@@ -8,11 +8,20 @@
 
     <div class="row bottom-xs fullWidth">
         <div class="col-xs-12 col-md-4">
-            <custom-input :value.sync="searchKey" placeholder="Search Tags" clearable />
+            <custom-input
+                :value.sync="searchKey"
+                placeholder="Search Tags"
+                append-icon="close"
+                @append-icon-click="searchKey = null"
+            />
         </div>
 
         <div class="col-xs-12 col-md-8 first-xs last-md end-xs">
-            <custom-button colour="text" label="New Note +" :click="() => openNote(0)" />
+            <custom-button
+                colour="text"
+                label="New Note +"
+                :click="() => openNote(0)"
+            />
         </div>
     </div>
 
@@ -27,9 +36,9 @@
                     {{ note.body }}
                 </p>
 
-                <div class="tags">
-                    <span style="font-weight: 600">Tags</span>: {{note.tags}}
-                </div>
+                <span v-for="(tag, index) in note.tags" :key="`${tag}${index}`" class="uk-badge">
+                    {{tag}}
+                </span>
             </div>
         </div>
     </div>
@@ -47,7 +56,7 @@ export default {
         notes() {
             if (this.searchKey)
                 // Filter by all notes that include the searchKey in a tag even as a substring
-                return this.getNotes.filter(note => !!note.tags.split(/,/g).find(tag => tag.includes(this.searchKey)))
+                return this.getNotes.filter(note => !!note.tags.find(tag => tag.includes(this.searchKey)))
             return this.getNotes
         },
 
@@ -88,11 +97,6 @@ export default {
 </script>
 
 <style scoped>
-    .col-xs-4 {
-        /* min-width: 300px; */
-        /* max-width: 300px; */
-    }
-
     .noteContainer {
         padding: 10px;
     }
@@ -123,5 +127,11 @@ export default {
     .emptyList {
         font-size: 25px;
         font-weight: 600;
+    }
+
+    .uk-badge {
+        padding: 5px 10px;
+        border-radius: 5px;
+        margin-right: 5px;
     }
 </style>

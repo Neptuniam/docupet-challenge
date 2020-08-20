@@ -1,26 +1,35 @@
 <template>
-    <div class="inputField" :class="{'transitioned': !!localValue}">
-        <input v-if="type === 'input'"
-            :id="uniqueID"
-            class="uk-input roundEdge"
-            v-model="localValue"
-            @input="handleInput"
-        >
-        <textarea v-else
-            :id="uniqueID"
-            class="uk-textarea roundEdge"
-            rows="4"
-            v-model="localValue"
-            @input="handleInput"
-        >
-        </textarea>
+<div class="inputField" :class="{'transitioned': !!localValue}">
+    <input v-if="type === 'input'"
+        :id="uniqueID"
+        class="uk-input roundEdge"
+        :class="{'error': !!errorMessage}"
+        v-model="localValue"
+        @input="handleInput"
+    >
+    <textarea v-else
+        :id="uniqueID"
+        class="uk-textarea roundEdge"
+        rows="4"
+        v-model="localValue"
+        @input="handleInput"
+    >
+    </textarea>
 
-        <label :for="uniqueID">
-            {{ placeholder }}
-        </label>
+    <label :for="uniqueID">
+        {{ placeholder }}
+    </label>
 
-        <div v-if="clearable && !!localValue" class="uk-icon clickable" uk-icon="close" @click="clear" />
+    <div v-if="errorMessage" class="errorMessage">
+        {{errorMessage}}
     </div>
+
+    <div v-if="appendIcon && !!localValue"
+        class="uk-icon clickable"
+        :uk-icon="appendIcon"
+        @click="$emit('append-icon-click', $event)"
+    />
+</div>
 </template>
 
 <script>
@@ -40,6 +49,13 @@ export default {
             default: false
         },
 
+        appendIcon: {
+            type: String,
+            default: null
+        },
+
+        errorMessage: String,
+
         value: {}
     },
 
@@ -52,13 +68,20 @@ export default {
 
     methods: {
         handleInput($event) {
+            if (this.errorMessage)
+                this.errorMessage = null
+
             this.$emit('update:value', this.localValue)
             this.$emit('input', $event)
-        },
+        }
+    },
 
-        clear() {
-            this.localValue = null
-            this.$emit('update:value', this.localValue)
+    watch: {
+        value() {
+            // Listen to changes coming from the parent
+            if (this.value != this.localValue) {
+                this.localValue = this.value
+            }
         }
     },
 }
@@ -109,5 +132,17 @@ export default {
         position: absolute;
         top: 11px;
         right: 10px;
+    }
+
+    .error {
+        border-color: #f0506e;
+    }
+
+    .errorMessage {
+        height: 20px;
+        font-size: 12px;
+        color: #f0506e;
+
+        padding-left: 5px;
     }
 </style>
