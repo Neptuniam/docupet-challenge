@@ -29,6 +29,7 @@ const router = new VueRouter({routes});
 Vue.config.productionTip = false
 
 Vue.component('CustomInput', require('./components/CustomInput.vue').default);
+Vue.component('CustomButton', require('./components/CustomButton.vue').default);
 
 new Vue({
     store,

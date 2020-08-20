@@ -1,6 +1,6 @@
 <template>
-<div v-if="note" class="">
-    <div class="uk-card uk-card-default uk-card-body">
+<div class="">
+    <div v-if="note" class="uk-card uk-card-default uk-card-body roundEdge">
         <h1 class="uk-card-title">
             {{ note.id ? 'Edit' : 'New' }} Note
         </h1>
@@ -20,16 +20,13 @@
 
         <div class="spacer"></div>
         <div class="spacer"></div>
-        <div class="spacer"></div>
 
         <div class="row fullWidth noMargin around-xs">
-            <button class="col-xs-5 uk-button uk-button-secondary roundEdge" @click="goBack">
-                Cancel
-            </button>
+            <custom-button class="col-xs-10 col-md-3" colour="primary" label="Save" :click="saveAction" />
 
-            <button class="col-xs-5 uk-button uk-button-primary roundEdge" @click="saveAction">
-                Save
-            </button>
+            <custom-button class="col-xs-10 col-md-3" colour="secondary" label="Cancel" :click="goBack" />
+
+            <custom-button class="col-xs-10 col-md-3" colour="danger" label="Delete" :click="deleteAction" :disabled="!note.id" />
         </div>
     </div>
 </div>
@@ -37,6 +34,8 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import Swal from 'sweetalert2'
+
 export default {
     props: ['id'],
 
@@ -44,7 +43,7 @@ export default {
         return {
             // Generate new notes here so Vue can set up setters and getters for us
             emptyNote: {
-                // I would normally use 0 to signify it's new
+                // I normally use 0 to signify it's new
                 id: 0,
                 title: null,
                 body: null,
@@ -62,9 +61,10 @@ export default {
              * and improves reliablity that it's up to date with the backend
         */
         note() {
+            // Todo: This is a pointer so will save changes even if you cancel
             if (this.notes && this.notes.length)
                 return this.notes.find(note => note.id == this.id) || this.emptyNote
-            return this.emptyNote
+            return null
         },
 
         ...mapGetters({
@@ -73,13 +73,46 @@ export default {
     },
 
     methods: {
-        saveAction() {
+        async saveAction() {
             // title is the only field I require
             if (this.note.title) {
-                this.saveNote(this.note)
-                this.goBack()
+                const res = await Swal.fire({
+                    title: 'Are you ready to<br>save your changes?',
+                    // text: 'You will not be able to recover it!',
+                    icon: 'question',
+                    position: 'top',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, save!',
+                    // confirmButtonColor: '#f0506e',
+                    cancelButtonText: 'Not yet',
+                    cancelButtonColor: '#080808'
+                })
+
+                if (res.value) {
+                    this.saveNote(this.note)
+                    this.goBack()
+                }
             } else {
                 alert("Please include a title")
+            }
+        },
+
+        async deleteAction() {
+            const res = await Swal.fire({
+                title: 'Are you sure you want<br>to delete this note?',
+                text: 'You will not be able to recover it!',
+                icon: 'warning',
+                position: 'top',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                confirmButtonColor: '#f0506e',
+                cancelButtonText: 'No, keep it',
+                cancelButtonColor: '#080808'
+            })
+
+            if (res.value) {
+                this.deleteNote(this.note)
+                this.goBack()
             }
         },
 
@@ -87,7 +120,7 @@ export default {
             this.$router.back()
         },
 
-        ...mapActions(['saveNote'])
+        ...mapActions(['saveNote', 'deleteNote'])
     },
 }
 </script>
@@ -99,16 +132,18 @@ export default {
 
 <style scoped>
     .uk-card {
-        max-width: 500px;
-        margin: 20px auto;
-    }
-
-    .spacer {
-        margin: 30px 0px!important;
+        max-width: 600px;
+        margin: auto;
     }
 
     .WhatIsThis {
         font-size: 12px;
         margin-left: 5px;
+
+        text-decoration: underline;
+    }
+
+    .uk-button {
+        margin: 5px auto;
     }
 </style>

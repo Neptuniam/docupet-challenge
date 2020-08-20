@@ -18,6 +18,8 @@
         <label :for="uniqueID">
             {{ placeholder }}
         </label>
+
+        <div v-if="clearable && !!localValue" class="uk-icon clickable" uk-icon="close" @click="clear" />
     </div>
 </template>
 
@@ -33,6 +35,11 @@ export default {
             type: String
         },
 
+        clearable: {
+            type: Boolean,
+            default: false
+        },
+
         value: {}
     },
 
@@ -45,10 +52,14 @@ export default {
 
     methods: {
         handleInput($event) {
-            console.log('update:value', this.localValue);
             this.$emit('update:value', this.localValue)
             this.$emit('input', $event)
         },
+
+        clear() {
+            this.localValue = null
+            this.$emit('update:value', this.localValue)
+        }
     },
 }
 </script>
@@ -80,7 +91,8 @@ export default {
     }
 
     .transitioned label, input:focus + label, textarea:focus + label {
-        top: -1px;
+        top: 0px;
+        left: 5px;
         font-size: 10px;
         line-height: 10px;
 
@@ -91,5 +103,11 @@ export default {
     .transitioned input, input:focus,
     .transitioned textarea, textarea:focus {
         border: 1px solid #3994D6;
+    }
+
+    .uk-icon {
+        position: absolute;
+        top: 11px;
+        right: 10px;
     }
 </style>

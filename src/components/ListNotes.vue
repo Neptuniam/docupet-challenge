@@ -1,24 +1,24 @@
 <template>
-<div class="">
+<div v-if="notes !== null" class="">
     <h1 class="uk-h1">
-        Notes
+        Personal Notes ({{ notes.length }}<span v-if="notes.length !== getNotes.length"> / {{getNotes.length}}</span>)
     </h1>
+
+    <div class="spacer"></div>
 
     <div class="row bottom-xs fullWidth">
         <div class="col-xs-12 col-md-4">
-            <custom-input :value.sync="searchKey" placeholder="Search Tags" />
+            <custom-input :value.sync="searchKey" placeholder="Search Tags" clearable />
         </div>
 
-        <div class="col-xs end-md">
-            <button class="uk-button uk-button-text" @click="addNote">
-                New Note +
-            </button>
+        <div class="col-xs-12 col-md-8 first-xs last-md end-xs">
+            <custom-button colour="text" label="New Note +" :click="() => openNote(0)" />
         </div>
     </div>
 
-    <div class="row fullWidth">
-        <div v-for="note in notes" :key="note.id" class="col-xs-12 col-md-6 col-lg-4 noteContainer">
-            <div class="uk-card uk-card-default uk-card-body uk-box-shadow-hover-large clickable" @click="openNote(note)">
+    <div v-if="notes.length" class="row fullWidth">
+        <div v-for="note in notes" :key="note.id" class="col-xs-12 col-sm-6 col-md-4 noteContainer">
+            <div class="uk-card uk-card-default uk-card-body uk-box-shadow-hover-large roundEdge clickable" @click="openNote(note.id)">
                 <h3 class="uk-card-title">
                     {{ note.title }}
                 </h3>
@@ -28,10 +28,14 @@
                 </p>
 
                 <div class="tags">
-                    Tags: {{note.tags}}
+                    <span style="font-weight: 600">Tags</span>: {{note.tags}}
                 </div>
             </div>
         </div>
+    </div>
+    <div v-else-if="notes !== null" class="emptyList center-xs">
+        <div class="spacer" />
+        No Notes Found
     </div>
 </div>
 </template>
@@ -39,20 +43,24 @@
 <script>
 import { mapMutations, mapGetters } from 'vuex';
 export default {
-    data() {
-        return {
-            searchKey: null
-        }
-    },
-
     computed: {
         notes() {
             if (this.searchKey)
-                return this.getNotes.filter(note => note && note.tags.includes(this.searchKey))
+                // Filter by all notes that include the searchKey in a tag even as a substring
+                return this.getNotes.filter(note => !!note.tags.split(/,/g).find(tag => tag.includes(this.searchKey)))
             return this.getNotes
         },
 
-        ...mapGetters([ 'getNotes' ])
+        searchKey: {
+            get() {
+                return this.getSearchKey
+            },
+            set(val) {
+                this.setSearchKey(val)
+            }
+        },
+
+        ...mapGetters([ 'getNotes', 'getSearchKey' ])
     },
 
     methods: {
@@ -65,16 +73,16 @@ export default {
             })
         },
 
-        openNote(note) {
+        openNote(noteId) {
             this.$router.push({
                 name: 'note',
                 params: {
-                    id: note.id
+                    id: noteId
                 }
             })
         },
 
-        ...mapMutations(['setNotes'])
+        ...mapMutations(['setNotes', 'setSearchKey'])
     },
 }
 </script>
@@ -95,7 +103,7 @@ export default {
     }
 
     .uk-card .uk-card-title {
-        font-size: 24px;
+        font-size: 28px;
     }
     .uk-card p {
         font-size: 18px;
@@ -110,5 +118,10 @@ export default {
     }
     .uk-card .tags {
         font-size: 14px;
+    }
+
+    .emptyList {
+        font-size: 25px;
+        font-weight: 600;
     }
 </style>

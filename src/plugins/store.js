@@ -5,19 +5,32 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        notes: []
+        notes: null,
+
+        searchKey: null
     },
     getters: {
-        getNotes: (state) => state.notes
+        getNotes: (state) => state.notes,
+        getSearchKey: (state) => state.searchKey
     },
     mutations: {
         setNotes (state, payload) {
             state.notes = payload
+        },
+
+        setSearchKey(state, payload) {
+            state.searchKey = payload
         }
     },
     actions: {
         fetchNotes({ commit }) {
-            commit('setNotes', JSON.parse(localStorage.getItem('personalNotes')) || [])
+            const notes = JSON.parse(localStorage.getItem('personalNotes')) || []
+            commit('setNotes', notes)
+        },
+
+        saveNotes({ commit }, payload) {
+            commit('setNotes', payload)
+            localStorage.setItem('personalNotes', JSON.stringify(payload))
         },
 
         saveNote({ commit, getters }, payload) {
@@ -32,6 +45,14 @@ export default new Vuex.Store({
 
             commit('setNotes', notes)
             localStorage.setItem('personalNotes', JSON.stringify(notes))
+        },
+
+        deleteNote({ getters, dispatch }, payload) {
+            const index = getters.getNotes.findIndex(note => note.id == payload.id)
+
+            getters.getNotes.splice(index, 1)
+
+            dispatch('saveNotes', getters.getNotes)
         }
     }
 })
