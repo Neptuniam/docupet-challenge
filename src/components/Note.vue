@@ -62,7 +62,7 @@ export default {
         */
         note() {
             // Todo: This is a pointer so will save changes even if you cancel
-            if (this.notes && this.notes.length)
+            if (this.notes !== null)
                 return this.notes.find(note => note.id == this.id) || this.emptyNote
             return null
         },
@@ -147,3 +147,5 @@ export default {
         margin: 5px auto;
     }
 </style>
+
+<!-- [{"id":1597881217885,"title":"My first Note","body":"This is my first note ever","tags":"test"},{"id":1597881969132,"title":"My Second Note","body":"This is a change!\n This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis\nThis note should be a little longer to try to show the elipsis","tags":""},{"id":1597883258064,"title":"My Third Note","body":"This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis","tags":"work"},{"id":1597883272716,"title":"My Fourth Note","body":"This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis This note should be a little longer to try to show the elipsis","tags":"test, work"},{"id":1597895984721,"title":"My Fifth Note","body":"This one will include mult word tags","tags":"multi word, tag"}] -->

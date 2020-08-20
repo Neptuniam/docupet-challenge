@@ -32,7 +32,7 @@ export default {
         height: calc(100vh - 20px);
 
 
-        background-image: url(/images/grey-feathers-float-air-isolated-white-background_36860-392.jpg);
+        background-image: url(assets/grey-feathers-float-air-isolated-white-background_36860-392.jpg);
         background-repeat: no-repeat;
         /* background-size: contain; */
 
