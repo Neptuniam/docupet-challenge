@@ -40,19 +40,9 @@ export default {
             default: 'input'
         },
 
-        placeholder: {
-            type: String
-        },
+        placeholder: String,
 
-        clearable: {
-            type: Boolean,
-            default: false
-        },
-
-        appendIcon: {
-            type: String,
-            default: null
-        },
+        appendIcon: String,
 
         errorMessage: String,
 

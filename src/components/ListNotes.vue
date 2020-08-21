@@ -73,15 +73,6 @@ export default {
     },
 
     methods: {
-        addNote() {
-            this.$router.push({
-                name: 'note',
-                params: {
-                    id: 0
-                }
-            })
-        },
-
         openNote(noteId) {
             this.$router.push({
                 name: 'note',

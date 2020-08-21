@@ -27,7 +27,7 @@ export default {
         -moz-osx-font-smoothing: grayscale;
         color: #2c3e50;
 
-        height: calc(100vh - 20px);
+        min-height: calc(100vh - 20px);
 
         background-image: url(assets/grey-feathers-float-air-isolated-white-background_36860-392.jpg);
         background-repeat: no-repeat;

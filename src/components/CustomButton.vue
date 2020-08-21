@@ -1,5 +1,9 @@
 <template>
-<button :class="`uk-button uk-button-${colour} roundEdge ripple`" @click="click" :disabled="disabled">
+<button
+    :class="`uk-button uk-button-${colour} roundEdge ripple`"
+    :disabled="disabled"
+    @click="click"
+>
     {{ label }}
 </button>
 </template>

@@ -11,6 +11,7 @@ export default new Vuex.Store({
     },
     getters: {
         getNotes: (state) => state.notes,
+        
         getSearchKey: (state) => state.searchKey
     },
     mutations: {

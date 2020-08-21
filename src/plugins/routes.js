@@ -1,7 +1,6 @@
 import ListNotes from '../components/ListNotes.vue';
 import Note from '../components/Note.vue';
 
-
 export default [
     {
         path: '/',
@@ -15,7 +14,3 @@ export default [
         props: true
     }
 ];
-
-// const router = new VueRouter({
-//   routes // short for `routes: routes`
-// })
